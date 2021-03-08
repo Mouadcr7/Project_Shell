@@ -33,16 +33,19 @@ int main(int argc, char const *argv[], char ** envp) {
 		//if (l->in) printf("in: %s\n", l->in);
 		//if (l->out) printf("out: %s\n", l->out);
 
-		/* Display each command of the pipe */
+		/* Display each command of the pipe */;
+		int pipeprec = 0  ;  // a file descriptor returned from the previous call of executecmd ( necessary for managing pipes)
+		int nbprocess = 0 ; // the number of process ( equal to the nb of cmds in a line )
+
 		for (i=0; l->seq[i]!=0; i++) {
+
 			char **cmd = l->seq[i];
 			if ( ! strcmp(cmd[0],"quit") ) exit(0) ;
-			//executecmd(cmd , l->in , l->out, envp) ;
-			//printf("seq[%d]: ", i);
-			for (j=0; cmd[j]!=0; j++) {
-				//printf("%s ", cmd[j]);
-			}
-			printf("\n");
+			pipeprec = executecmd(  cmd, l->in , l->out ,  l->seq[i+1] , pipeprec ,  i   ) ;
+			nbprocess ++ ;
 		}
+		printf("\n");
+		cleanzombies(nbprocess);
+		nbprocess = 0 ;
 	}
 }
