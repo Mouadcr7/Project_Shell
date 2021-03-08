@@ -16,7 +16,7 @@ INCLUDE = readcmd.h csapp.h executecmd.h
 OBJS = readcmd.o csapp.o executecmd.o
 INCLDIR = -I.
 
-all: shell test
+all: shell 
 
 %.o: %.c $(INCLUDE)
 	$(CC) $(CFLAGS) $(INCLDIR) -c -o $@ $<
