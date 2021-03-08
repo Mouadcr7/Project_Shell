@@ -85,7 +85,10 @@ void Execve(const char *filename, char *const argv[], char *const envp[])
 
 void Execvp( const char *file, char *const argv[])
 {
-    if (execvp( file , argv ) < 0) printf("%s: command not found",file );
+    if (execvp( file , argv ) < 0) {
+      printf("%s: command not found\n",file );
+      exit(0);
+    }
 
 }
 

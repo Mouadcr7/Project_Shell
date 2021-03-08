@@ -32,7 +32,7 @@ int  executecmd( char ** cmd , char * in , char * out , char ** cmdsuiv , int pi
                 else if ( i==0 && cmdsuiv  ) {
                   if(in){
                     des2 = Open( in , O_RDONLY, 0 ) ;
-                    dup2(des2,0);
+                    dup2(des2,STDIN_FILENO);
                     Close(des2);
                   }
                   dup2( p[WRITE], STDOUT_FILENO );
@@ -46,7 +46,7 @@ int  executecmd( char ** cmd , char * in , char * out , char ** cmdsuiv , int pi
                 else {
                   if(out){
                     des1 = Open( out , O_WRONLY | O_CREAT | O_TRUNC, 0644 ) ;
-                    dup2(des1,1);
+                    dup2(des1,STDOUT_FILENO);
                     Close(des1);
                   }
                   dup2(pipeprec, STDIN_FILENO);
@@ -62,8 +62,10 @@ int  executecmd( char ** cmd , char * in , char * out , char ** cmdsuiv , int pi
     }
     return p[READ];
 }
-      void cleanzombies( int n){
-        for (int i = 0 ; i < n ; i++  ){
-          wait(NULL);
+      void cleanzombies(int n, int isBg){
+        if ( ! isBg ){
+          for (int i = 0 ; i < n ; i++  ){
+            wait(NULL);
+          }
         }
       }

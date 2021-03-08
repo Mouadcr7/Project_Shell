@@ -45,7 +45,7 @@ static char *readline(void)
 		free(buf);
 		return NULL;
 	}
-	
+
 	if (feof(stdin)) { /* End of file (ctrl-d) */
 	    fflush(stdout);
 	    exit(0);
@@ -95,6 +95,11 @@ static char **split_in_words(char *line)
 			w = "|";
 			cur++;
 			break;
+		case '&':
+			w = "&";
+			cur++;
+			break;
+
 		default:
 			/* Another word */
 			start = cur;
@@ -106,6 +111,7 @@ static char **split_in_words(char *line)
 				case '\t':
 				case '<':
 				case '>':
+				case '&':
 				case '|':
 					c = 0;
 					break;
@@ -147,6 +153,7 @@ static void freecmd(struct cmdline *s)
 	if (s->in) free(s->in);
 	if (s->out) free(s->out);
 	if (s->seq) freeseq(s->seq);
+
 }
 
 
@@ -189,7 +196,7 @@ struct cmdline *readcmd(void)
 	s->in = 0;
 	s->out = 0;
 	s->seq = 0;
-
+	s->isBg = 0 ;
 	i = 0;
 	while ((w = words[i++]) != 0) {
 		switch (w[0]) {
@@ -205,6 +212,7 @@ struct cmdline *readcmd(void)
 			}
 			s->in = words[i++];
 			break;
+
 		case '>':
 			/* Tricky : the word can only be ">" */
 			if (s->out) {
@@ -217,6 +225,18 @@ struct cmdline *readcmd(void)
 			}
 			s->out = words[i++];
 			break;
+
+			case '&':
+				/* Tricky : the word can only be "&" */
+				if (words[i] ) {
+					s->err = malloc ( sizeof (100)  ) ;
+					strcpy(s->err , "syntax error near unexpected token ");
+					strcat(s->err , words[i]);
+					goto error;
+				}
+				s->isBg = 1 ;
+				break;
+
 		case '|':
 			/* Tricky : the word can only be "|" */
 			if (cmd_len == 0) {
@@ -258,6 +278,7 @@ error:
 		case '<':
 		case '>':
 		case '|':
+		case '&':
 			break;
 		default:
 			free(w);
@@ -274,6 +295,10 @@ error:
 	if (s->out) {
 		free(s->out);
 		s->out = 0;
+	}
+
+	if (s->isBg) {
+		s->isBg = 0;
 	}
 	return s;
 }
